@@ -1,0 +1,33 @@
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    goals: 'package'
+
+- task: SonarQubePrepare@4
+  inputs:
+    SonarQube: 'SQ'
+    scannerMode: 'MSBuild'
+    projectKey: 'myrepoforoctonline'
+
+- task: SonarQubeAnalyze@4
+
+- task: SonarQubePublish@4
+  inputs:
+    pollingTimeoutSec: '300'
+
+- task: sonar-buildbreaker@8
+  inputs:
+    SonarQube: 'SQ'
